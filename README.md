@@ -16,7 +16,7 @@ Add the following to your `project.clj` `:dependencies`:
 
 AWS Lambda JSON Rest API example.
 
-Add `ring/ring-core`, 'ring/ring-json`,`compojure`,`lambdada` and `cheshire` dependencies.
+Add `ring/ring-core`, `ring/ring-json`,`compojure`,`lambdada` and `cheshire` dependencies.
 
 ```clojure
 (ns example
