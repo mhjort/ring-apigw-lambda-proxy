@@ -1,7 +1,8 @@
-(ns ring.middleware.apigw)
+(ns ring.middleware.apigw
+  (:import [java.net URLEncoder]))
 
 (defn- generate-query-string [params]
-  (clojure.string/join "&" (map (fn [[k v]] (str (name k) "=" v)) params)))
+  (clojure.string/join "&" (map (fn [[k v]] (str (URLEncoder/encode (name k)) "=" (URLEncoder/encode v))) params)))
 
 (defn wrap-apigw-lambda-proxy [handler]
   (fn [apigw-request]
