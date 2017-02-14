@@ -51,3 +51,18 @@ Add `ring/ring-core`, `ring/ring-json`,`compojure`,`lambdada` and `cheshire` dep
       (generate-stream (handler request) writer))))
 
 ```
+
+It is a common to use AWS Scheduled Events to warmup the Lambda function.
+For this case `ring-apigw-lambda-proxy` provides a configuration where
+Scheduled Event can be mapped to regular Ring GET route like this:
+
+```clojure
+(wrap-apigw-lambda-proxy app {:scheduled-event-route "/warmup"})
+
+(defroutes app
+  (GET "/warmup" request {:status 200 :body "Scheduled event for warmup"}))
+
+```
+
+If you have not configured `:scheduled-event-route` and Lambda function is
+called via Scheduled Event the error will be thrown.
