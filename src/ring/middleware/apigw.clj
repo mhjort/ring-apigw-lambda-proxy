@@ -1,8 +1,11 @@
 (ns ring.middleware.apigw
+  (:require [clojure.string :as string])
   (:import [java.net URLEncoder]))
 
 (defn- generate-query-string [params]
-  (clojure.string/join "&" (map (fn [[k v]] (str (URLEncoder/encode (name k)) "=" (URLEncoder/encode v))) params)))
+  (string/join "&" (map (fn [[k v]]
+                          (str (URLEncoder/encode (name k)) "=" (URLEncoder/encode v)))
+                        params)))
 
 (defn- apigw-get [uri query-string]
   {:uri uri
