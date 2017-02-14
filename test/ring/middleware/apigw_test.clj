@@ -7,7 +7,13 @@
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.json :refer [wrap-json-response]]
-            [ring.middleware.apigw :refer [wrap-apigw-lambda-proxy]]))
+            [ring.middleware.apigw :refer [wrap-apigw-lambda-proxy]])
+  (:import [clojure.lang ExceptionInfo]))
+
+(def scheduled-event
+  (-> (io/resource "scheduled-event.json")
+      (slurp)
+      (parse-string true)))
 
 (defroutes app-routes
   (GET "/warmup" request {:status 200 :body "warmup"})
@@ -28,9 +34,13 @@
         query-string (get-in (app request) [:body :query-string])]
     (is (= query-string "text=hello%2C+world%21&foo%5B%5D=bar"))))
 
-(deftest scheduled-event-is-handled
-  (let [app (wrap-apigw-lambda-proxy ring-routes {:scheduled-event-route "/warmup"})
-        result (app (-> (io/resource "scheduled-event.json")
-                        (slurp)
-                        (parse-string true)))]
-    (is (= {:statusCode 200 :headers {} :body "warmup"} result))))
+(deftest when-called-with-scheduled-event
+
+  (testing "maps to given route"
+    (let [app (wrap-apigw-lambda-proxy ring-routes {:scheduled-event-route "/warmup"})]
+      (is (= {:statusCode 200 :headers {} :body "warmup"}
+             (app scheduled-event))))
+
+  (testing "throws exception if route is not configured"
+    (let [app (wrap-apigw-lambda-proxy ring-routes)]
+      (is (thrown? ExceptionInfo (app scheduled-event)))))))

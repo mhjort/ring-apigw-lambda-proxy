@@ -4,19 +4,29 @@
 (defn- generate-query-string [params]
   (clojure.string/join "&" (map (fn [[k v]] (str (URLEncoder/encode (name k)) "=" (URLEncoder/encode v))) params)))
 
+(defn- apigw-get [uri query-string]
+  {:uri uri
+   :query-string query-string
+   :request-method :get})
+
+(defn- no-scheduled-route-configured-error [request]
+  (throw (ex-info "Got Scheduled Event but no scheduled-event-route configured"
+                  {:request request})))
+
+(defn- apigw->ring-request [request scheduled-event-route]
+  (let [scheduled-event? (= "Scheduled Event" (:detail-type request))]
+    (cond
+      (and scheduled-event? scheduled-event-route) (apigw-get scheduled-event-route "")
+      scheduled-event? (no-scheduled-route-configured-error request)
+      :else (apigw-get (:path request)
+                       (generate-query-string (:queryStringParameters request))))))
+
 (defn wrap-apigw-lambda-proxy
   ([handler] (wrap-apigw-lambda-proxy handler {}))
   ([handler {:keys [scheduled-event-route]}]
-   (fn [apigw-request]
-     (let [scheduled-event? (= "Scheduled Event" (:detail-type apigw-request))
-           ring-request (if scheduled-event?
-                          {:uri scheduled-event-route
-                           :query-string ""
-                           :request-method :get}
-                          {:uri (:path apigw-request)
-                           :query-string (generate-query-string (:queryStringParameters apigw-request))
-                           :request-method :get})
-           response (handler ring-request)]
+   (fn [request]
+     (let [response (handler (apigw->ring-request request
+                                                  scheduled-event-route))]
        {:statusCode (:status response)
         :headers (:headers response)
         :body (:body response)}))))
