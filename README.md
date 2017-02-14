@@ -1,6 +1,6 @@
 # ring-apigw-lambda-proxy
 
-[![Build Status](https://travis-ci.com/mhjort/ring-apigw-lambda-proxy.svg?branch=master)](https://travis-ci.com/mhjort/ring-apigw-lambda-proxy)
+[![Build Status](https://travis-ci.org/mhjort/ring-apigw-lambda-proxy.svg?branch=master)](https://travis-ci.org/mhjort/ring-apigw-lambda-proxy)
 
 Ring middleware for handling AWS API Gateway Lamdbda proxy Requests and responses
 
