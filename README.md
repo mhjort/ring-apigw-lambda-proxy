@@ -11,7 +11,7 @@ Note! Currently only GET requests are supported.
 Add the following to your `project.clj` `:dependencies`:
 
 ```clojure
-[ring-apigw-lambda-proxy "0.0.3"]
+[ring-apigw-lambda-proxy "0.0.4"]
 ```
 
 ## Usage
