@@ -30,7 +30,9 @@
         app (wrap-apigw-lambda-proxy handler)
         request {:path "/v1/test"
                  :queryStringParameters {(keyword "text") "hello, world!"
-                                         (keyword "foo[]") "bar"}}
+                                         (keyword "foo[]") "bar"}
+                 :headers {"X-Forwarded-For" "127.0.0.1, 127.0.0.2"
+                           "Accept-Language" "en-US,en;q=0.8"}}
         query-string (get-in (app request) [:body :query-string])]
     (is (= query-string "text=hello%2C+world%21&foo%5B%5D=bar"))))
 
@@ -44,3 +46,15 @@
   (testing "throws exception if route is not configured"
     (let [app (wrap-apigw-lambda-proxy ring-routes)]
       (is (thrown? ExceptionInfo (app scheduled-event)))))))
+
+(deftest append-request-headers-to-ring-request
+  (let [request-header {"X-Forwarded-For" "127.0.0.1, 127.0.0.2"
+                        "Accept-Language" "en-US,en;q=0.8"}
+        handler (fn [request] {:body request :status 200 :headers nil})
+        app (wrap-apigw-lambda-proxy handler)
+        request {:path "/v2/test"
+                 :queryStringParameters {}
+                 :headers request-header}
+        headers-from-request (get-in (app request) [:body :headers])]
+    (is (= headers-from-request request-header))))
+
