@@ -12,7 +12,7 @@ Note! Currently only query params are supported, so no body is passed when using
 Add the following to your `project.clj` `:dependencies`:
 
 ```clojure
-[ring-apigw-lambda-proxy "0.0.4"]
+[ring-apigw-lambda-proxy "0.1.0"]
 ```
 
 ## Usage
