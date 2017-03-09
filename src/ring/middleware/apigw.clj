@@ -7,11 +7,18 @@
                           (str (URLEncoder/encode (name k)) "=" (URLEncoder/encode v)))
                         params)))
 
-(defn- apigw-get [uri query-string headers]
-  {:uri uri
-   :query-string query-string
-   :request-method :get
-   :headers headers})
+(defn- request->http-method [request]
+  (-> (:httpMethod request)
+      (string/lower-case)
+      (keyword)))
+
+(defn- apigw-request->ring-request [apigw-request]
+  {:pre [(every? #(contains? apigw-request %) [:httpMethod :path :queryStringParameters])
+         (contains? #{"GET" "POST" "OPTIONS" "DELETE" "PUT"} (:httpMethod apigw-request))]}
+  {:uri (:path apigw-request)
+   :query-string (generate-query-string (:queryStringParameters apigw-request))
+   :request-method (request->http-method apigw-request)
+   :headers (:headers apigw-request)})
 
 (defn- no-scheduled-route-configured-error [request]
   (throw (ex-info "Got Scheduled Event but no scheduled-event-route configured"
@@ -20,18 +27,18 @@
 (defn- apigw->ring-request [request scheduled-event-route]
   (let [scheduled-event? (= "Scheduled Event" (:detail-type request))]
     (cond
-      (and scheduled-event? scheduled-event-route) (apigw-get scheduled-event-route "" {})
+      (and scheduled-event? scheduled-event-route) (apigw-request->ring-request {:path scheduled-event-route
+                                                                                 :queryStringParameters ""
+                                                                                 :headers nil
+                                                                                 :httpMethod "GET"})
       scheduled-event? (no-scheduled-route-configured-error request)
-      :else (apigw-get (:path request)
-                       (generate-query-string (:queryStringParameters request))
-                       (:headers request)))))
+      :else (apigw-request->ring-request request))))
 
 (defn wrap-apigw-lambda-proxy
   ([handler] (wrap-apigw-lambda-proxy handler {}))
   ([handler {:keys [scheduled-event-route]}]
    (fn [request]
-     (let [response (handler (apigw->ring-request request
-                                                  scheduled-event-route))]
+     (let [response (handler (apigw->ring-request request scheduled-event-route))]
        {:statusCode (:status response)
         :headers (:headers response)
         :body (:body response)}))))
