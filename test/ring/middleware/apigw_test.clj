@@ -52,18 +52,19 @@
       (is (= {:statusCode 200 :headers {} :body "warmup"}
              (app scheduled-event))))
 
-  (testing "throws exception if route is not configured"
-    (let [app (wrap-apigw-lambda-proxy ring-routes)]
-      (is (thrown? ExceptionInfo (app scheduled-event)))))))
+    (testing "throws exception if route is not configured"
+      (let [app (wrap-apigw-lambda-proxy ring-routes)]
+        (is (thrown? ExceptionInfo (app scheduled-event)))))))
 
 (deftest append-request-headers-to-ring-request
-  (let [request-header {"X-Forwarded-For" "127.0.0.1, 127.0.0.2"
-                        "Accept-Language" "en-US,en;q=0.8"}
+  (let [request-header {:X-Forwarded-For "127.0.0.1, 127.0.0.2"
+                        :Accept-Language "en-US,en;q=0.8"}
         handler (fn [request] {:body request :status 200 :headers nil})
         app (wrap-apigw-lambda-proxy handler)
         request (assoc (->apigw-request "GET" "/v2/test") :headers request-header)
         headers-from-request (get-in (app request) [:body :headers])]
-    (is (= headers-from-request request-header))))
+    (is (= headers-from-request {"x-forwarded-for" "127.0.0.1, 127.0.0.2"
+                                 "accept-language" "en-US,en;q=0.8"}))))
 
 (deftest when-calling-with-different-http-methods
   (let [app (wrap-apigw-lambda-proxy ring-routes {:scheduled-event-route "/warmup"})]
@@ -96,4 +97,3 @@
 
     (testing "invalid http method"
       (is (thrown-with-msg? AssertionError #"Assert failed: \(contains\? #\{\"DELETE\"" (app (->apigw-request "TEAPOT" "/failing")))))))
-
