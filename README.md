@@ -4,8 +4,7 @@
 
 Ring middleware for handling AWS API Gateway Lamdbda proxy Requests and responses
 
-Note! Currently only query params are supported, so no body is passed when using POST or PUT.
-      HTTP response contains always message-body, so using HEAD should be avoided.
+Note! UTF-8 is used as encoding everywhere. HTTP response contains always message-body, so using HEAD should be avoided.
 
 ## Installation
 
