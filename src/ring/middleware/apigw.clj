@@ -1,6 +1,7 @@
 (ns ring.middleware.apigw
   (:require [clojure.string :as string])
-  (:import [java.net URLEncoder]))
+  (:import [java.io ByteArrayInputStream]
+           [java.net URLEncoder]))
 
 (defn- generate-query-string [params]
   (string/join "&" (map (fn [[k v]]
@@ -18,7 +19,8 @@
   {:uri (:path apigw-request)
    :query-string (generate-query-string (:queryStringParameters apigw-request))
    :request-method (request->http-method apigw-request)
-   :headers (:headers apigw-request)})
+   :headers (:headers apigw-request)
+   :body (when-let [body (:body apigw-request)] (ByteArrayInputStream. (.getBytes body "UTF-8")))})
 
 (defn- no-scheduled-route-configured-error [request]
   (throw (ex-info "Got Scheduled Event but no scheduled-event-route configured"
