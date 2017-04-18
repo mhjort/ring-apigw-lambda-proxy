@@ -49,7 +49,19 @@ Add `ring/ring-core`, `ring/ring-json`,`compojure`,`lambdada` and `cheshire` dep
   (with-open [writer (io/writer os)]
     (let [request (parse-stream (io/reader is :encoding "UTF-8") true)]
       (generate-stream (handler request) writer))))
+```
 
+Alteratively, you can use the ring-handler->lambda utility function
+
+```clojure
+;; no wrap-apigw
+(def handler (wrap-json-response
+               (wrap-json-params
+                 (wrap-params
+                   (wrap-keyword-params
+                     app)))))
+
+(deflambda-ring-handler example.LambdaRingHandler handler)
 ```
 
 It is a common to use AWS Scheduled Events to warmup the Lambda function.
