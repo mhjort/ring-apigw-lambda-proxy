@@ -40,3 +40,10 @@
   {:statusCode (:status response)
    :headers (:headers response)
    :body (:body response)})
+
+(defmacro deflambda-ring-handler [name handler & [scheduled-event-route]]
+  `(uswitch.lambada.core/deflambdafn ~name [is# os# ctx#]
+     (with-open [writer# (clojure.java.io/writer os#)]
+       (let [request# (cheshire.core/parse-stream (io/reader is# :encoding "UTF-8") keyword)
+             response# (-> request# (apigw->ring-request ~scheduled-event-route) ~handler ring-response->apigw)]
+         (cheshire.core/generate-stream response# writer#)))))
