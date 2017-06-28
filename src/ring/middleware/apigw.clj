@@ -36,11 +36,14 @@
       scheduled-event? (no-scheduled-route-configured-error request)
       :else (apigw-request->ring-request request))))
 
+(defn- keywordify-request [request]
+  (into {} (map (fn [[k v]] [(keyword k) v]) request)))
+
 (defn wrap-apigw-lambda-proxy
   ([handler] (wrap-apigw-lambda-proxy handler {}))
   ([handler {:keys [scheduled-event-route]}]
    (fn [request]
-     (let [response (handler (apigw->ring-request request scheduled-event-route))]
+     (let [response (handler (apigw->ring-request (keywordify-request request) scheduled-event-route))]
        {:statusCode (:status response)
         :headers (:headers response)
         :body (:body response)}))))
