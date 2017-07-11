@@ -25,7 +25,7 @@
   {:uri (:path apigw-request)
    :query-string (generate-query-string (:queryStringParameters apigw-request))
    :request-method (request->http-method apigw-request)
-   :headers (map-keys keyword->lowercase-string (:headers apigw-request))})
+   :headers (map-keys keyword->lowercase-string (:headers apigw-request))
    :body (when-let [body (:body apigw-request)] (ByteArrayInputStream. (.getBytes body "UTF-8")))})
 
 (defn- no-scheduled-route-configured-error [request]
