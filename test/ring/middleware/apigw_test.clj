@@ -104,3 +104,15 @@
 
     (testing "invalid http method"
       (is (thrown-with-msg? AssertionError #"Assert failed: \(contains\? #\{\"DELETE\"" (app (->apigw-request "TEAPOT" "/failing")))))))
+
+(deftest when-called-with-strings-instead-of-keywords
+  (let [app (wrap-apigw-lambda-proxy ring-routes)
+        request   {"httpMethod" "GET"
+                   "path" "/get"
+                   "queryStringParameters" {(keyword "text") "hello, world!"
+                                            (keyword "foo[]") "bar"}
+                   "headers" {"X-Forwarded-For" "127.0.0.1, 127.0.0.2"
+                              "Accept-Language" "en-US,en;q=0.8"}}]
+
+    (is (= {:statusCode 200 :headers {} :body "get"}
+           (app request)))))
