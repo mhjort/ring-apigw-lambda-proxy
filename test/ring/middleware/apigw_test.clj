@@ -66,6 +66,13 @@
     (is (= headers-from-request {"x-forwarded-for" "127.0.0.1, 127.0.0.2"
                                  "accept-language" "en-US,en;q=0.8"}))))
 
+(deftest append-body-input-stream-to-ring-request
+  (let [handler (fn [request] {:body request :status 200})
+        app (wrap-apigw-lambda-proxy handler)
+        request (assoc (->apigw-request "GET" "/2/test") :body "foo")
+        body-from-request (get-in (app request) [:body :body])]
+    (is (= "foo" (slurp body-from-request)))))
+
 (deftest when-calling-with-different-http-methods
   (let [app (wrap-apigw-lambda-proxy ring-routes {:scheduled-event-route "/warmup"})]
 

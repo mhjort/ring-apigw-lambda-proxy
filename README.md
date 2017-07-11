@@ -4,15 +4,14 @@
 
 Ring middleware for handling AWS API Gateway Lamdbda proxy Requests and responses
 
-Note! Currently only query params are supported, so no body is passed when using POST or PUT.
-      HTTP response contains always message-body, so using HEAD should be avoided.
+Note! UTF-8 is used as encoding everywhere. HTTP response contains always message-body, so using HEAD should be avoided.
 
 ## Installation
 
 Add the following to your `project.clj` `:dependencies`:
 
 ```clojure
-[ring-apigw-lambda-proxy "0.1.0"]
+[ring-apigw-lambda-proxy "0.2.0"]
 ```
 
 ## Usage
