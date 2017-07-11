@@ -57,13 +57,14 @@
         (is (thrown? ExceptionInfo (app scheduled-event)))))))
 
 (deftest append-request-headers-to-ring-request
-  (let [request-header {"X-Forwarded-For" "127.0.0.1, 127.0.0.2"
-                        "Accept-Language" "en-US,en;q=0.8"}
+  (let [request-header {:X-Forwarded-For "127.0.0.1, 127.0.0.2"
+                        :Accept-Language "en-US,en;q=0.8"}
         handler (fn [request] {:body request :status 200 :headers nil})
         app (wrap-apigw-lambda-proxy handler)
         request (assoc (->apigw-request "GET" "/v2/test") :headers request-header)
         headers-from-request (get-in (app request) [:body :headers])]
-    (is (= headers-from-request request-header))))
+    (is (= headers-from-request {"x-forwarded-for" "127.0.0.1, 127.0.0.2"
+                                 "accept-language" "en-US,en;q=0.8"}))))
 
 (deftest append-body-input-stream-to-ring-request
   (let [handler (fn [request] {:body request :status 200})
