@@ -16,6 +16,15 @@ Add the following to your `project.clj` `:dependencies`:
 
 ## Usage
 
+This library can be used to wrap AWS Lambda API Gateway request and response
+so that they can be used together with Ring. It takes AWS API Gateway request
+as input parameter (parsed from JSON with keywords) and creates Ring compatible
+request map. Same way it transforms Ring response map to AWS API Gateway response
+map which can be marshaled to JSON back.
+
+Note! This is not a standard Ring Middleware because this has to be always first
+middleware in a chain.
+
 AWS Lambda JSON Rest API example.
 
 Add `ring/ring-core`, `ring/ring-json`,`compojure`,`lambdada` and `cheshire` dependencies.
@@ -66,3 +75,8 @@ Scheduled Event can be mapped to regular Ring GET route like this:
 
 If you have not configured `:scheduled-event-route` and Lambda function is
 called via Scheduled Event the error will be thrown.
+
+## Design
+
+This is a tiny library with zero dependencies. That is the reason why JSON
+parsing of AWS API Gateway request/response is not included.
