@@ -11,7 +11,7 @@ Note! UTF-8 is used as encoding everywhere. HTTP response contains always messag
 Add the following to your `project.clj` `:dependencies`:
 
 ```clojure
-[ring-apigw-lambda-proxy "0.2.0"]
+[ring-apigw-lambda-proxy "0.3.0"]
 ```
 
 ## Usage
