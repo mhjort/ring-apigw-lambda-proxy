@@ -21,7 +21,7 @@
 
 (defn- apigw-request->ring-request [apigw-request]
   {:pre [(every? #(contains? apigw-request %) [:httpMethod :path :queryStringParameters])
-         (contains? #{"GET" "POST" "OPTIONS" "DELETE" "PUT"} (:httpMethod apigw-request))]}
+         (contains? #{"GET" "POST" "OPTIONS" "DELETE" "PUT" "PATCH"} (:httpMethod apigw-request))]}
   {:uri (:path apigw-request)
    :query-string (generate-query-string (:queryStringParameters apigw-request))
    :request-method (request->http-method apigw-request)
