@@ -20,6 +20,7 @@
   (GET "/get" request {:status 200 :body "get"})
   (OPTIONS "/options" request {:status 200 :body "options"})
   (POST "/post" request {:status 200 :body "post"})
+  (PATCH "/patch" request {:status 200 :body "patch"})
   (PUT "/put" request {:status 200 :body "put"})
   (DELETE "/delete" request {:status 200 :body "delete"})
   (route/not-found {:status 404 :body {:errors "Route not found"}}))
@@ -87,6 +88,10 @@
     (testing "POST"
       (is (= {:statusCode 200 :headers {} :body "post"}
              (app (->apigw-request "POST" "/post")))))
+
+    (testing "PATCH"
+      (is (= {:statusCode 200 :headers {} :body "patch"}
+             (app (->apigw-request "PATCH" "/patch")))))
 
     (testing "PUT"
       (is (= {:statusCode 200 :headers {} :body "put"}
